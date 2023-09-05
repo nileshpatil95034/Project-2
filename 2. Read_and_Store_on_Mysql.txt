@@ -1,0 +1,82 @@
+import json
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("example").getOrCreate()
+
+
+file_path = 'C:\mongodata\output.json'
+
+
+with open(file_path, 'r') as json_file:
+    data = json.load(json_file)
+
+
+df = spark.createDataFrame(data)
+df.printSchema()
+df.show()
+
+import json
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+spark = SparkSession.builder.appName("example").getOrCreate()
+
+
+file_path = 'C:\mongodata\output.json'
+
+
+with open(file_path, 'r') as json_file:
+    data = json.load(json_file)
+
+
+df = spark.createDataFrame(data)
+
+# df.show()
+
+
+df = df.withColumn("topic", col("Ad Topic Line").cast("string")).drop("Ad Topic Line")
+df = df.withColumn("age", col("Age").cast("integer"))
+df = df.withColumn("area_income", col("Area Income").cast("integer")).drop("Area Income")
+df = df.withColumn("city", col("City").cast("string"))
+df = df.withColumn("clicked", col("Clicked on Ad").cast("integer")).drop("Clicked on Ad")
+df = df.withColumn("country", col("Country").cast("string"))
+df = df.withColumn("daily_internet_usage", col("Daily Internet Usage").cast("integer")).drop("Daily Internet Usage")
+df = df.withColumn("daily_time_spent", col("Daily Time Spent on Site").cast("integer")).drop("Daily Time Spent on Site")
+df = df.withColumn("male", col("Male").cast("integer"))
+df = df.withColumn("timestamp", col("Timestamp").cast("string"))
+df = df.withColumn("id", col("_id").cast("string")).drop("_id")
+
+
+df.printSchema()
+df.show()
+
+output_location="C:/mongodata/data.csv"
+# df.write.mode("overwrite").format("csv").option("header","true").option("inferSchema","true").save(output_location)
+df.write.format("csv").option("header", "true").save(output_location)
+
+# data ={"url" : "jdbc:mysql://nileshdb.cnlm2ndoitm9.ap-south-1.rds.amazonaws.com:3306/mysqldb?useSSL=false",
+#         "user":"admin",
+#         "password":"Nilesh95",
+#         "dbtable":"advertisement",
+#         "driver":"com.mysql.cj.jdbc.Driver"
+#     }
+#
+# df.write.mode("overwrite").format("jdbc").options(**data).save()
+
+#--------------------- Snowflake -------------------------------
+sfOPTION={
+    "sfURL":"qaygbrl-vt72116.snowflakecomputing.com",
+    "sfUser":"nilesh95",
+    "sfPassword":"Nilesh@95",
+    "sfDatabase":"nileshdb",
+    "sfSchema":"nileshschema",
+    "sfWarehouse":"COMPUTE_WH",
+    "dbtable" : "advertisement"
+}
+
+df.write.mode("append").format("net.snowflake.spark.snowflake").options(**sfOPTION).save()
+
+#---------------------------------------------------------------------------------------
+
+print("Table Created Sucessfully")
+

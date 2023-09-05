@@ -1,0 +1,30 @@
+import pymongo
+import json
+
+# MongoDB connection details
+mongo_uri = "mongodb+srv://nileshavd1:nilesh95@cluster0.cuega8c.mongodb.net/mydatabase"
+collection_name = "advertisement"
+output_file_path = "C:/mongodata/output.json"
+
+# Connect to MongoDB
+client = pymongo.MongoClient(mongo_uri)
+db = client.get_database()
+collection = db.get_collection(collection_name)
+
+# Query and retrieve records
+records = list(collection.find())
+
+# Convert ObjectId to string for each record
+for record in records:
+    record["_id"] = str(record["_id"])
+
+# Save records to the specified file path
+with open(output_file_path, "w") as file:
+    json.dump(records, file, indent=2)
+
+print(f"{len(records)} records retrieved and saved to {output_file_path}")
+
+# Close the MongoDB client
+client.close()
+
+
